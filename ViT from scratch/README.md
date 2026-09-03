@@ -8,7 +8,7 @@ Implementation of a Vision Transformer (ViT) classifier built from scratch using
 
 ### 1. Clone the Repository
 ```bash
-git clone <your-repo-url>
+git clone https://github.com/Deepakmewadaa/GNR-650.git
 cd "ViT from scratch"
 ```
 
