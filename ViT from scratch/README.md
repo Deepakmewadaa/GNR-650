@@ -68,12 +68,12 @@ To evaluate a trained checkpoint on any test dataset and output all 6 mandatory 
 
 ### Linux / Mac / WSL
 ```bash
-bash run_test.sh --test-path "/path/to/dataset/test" --checkpoint checkpoints/best_model.npz
+bash run_test.sh --test-path "/path/to/dataset/test"
 ```
 
 ### Direct Python Evaluation
 ```bash
-python test.py --test-path "/path/to/dataset/test" --checkpoint checkpoints/best_model.npz
+python test.py --test-path "/path/to/dataset/test" 
 ```
 
 ---
