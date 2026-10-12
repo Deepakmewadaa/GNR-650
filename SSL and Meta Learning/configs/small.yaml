@@ -1,0 +1,12 @@
+# "small" preset for weak / low-memory GPUs (< 12 GB) or short budgets:
+# half-width ResNet-18 (256-d embedding), 96px images, batch 256.
+inherit: base
+data:
+  max_image_size: 96
+model:
+  width: 32
+  embed_dim: 256
+ssl:
+  batch_size: 256
+simclr:
+  proj_hidden: 1024

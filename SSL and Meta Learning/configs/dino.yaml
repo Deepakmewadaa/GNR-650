@@ -1,0 +1,13 @@
+# Optional DINO preset (self-distillation, multi-crop). Hyper-parameters follow the DINO ResNet-50
+# recipe (SGD, lr 0.03/256, wd 1e-4, global crops 0.14-1, local crops 0.05-0.14), scaled to our setting.
+inherit: base
+ssl:
+  method: dino
+  optimizer: sgd
+  lr: 0.03
+  weight_decay: 1.0e-4
+  batch_size: 256
+dino:
+  global_scale: [0.14, 1.0]
+  local_scale: [0.05, 0.14]
+  n_local: 6

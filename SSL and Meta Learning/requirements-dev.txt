@@ -1,0 +1,5 @@
+# Development / verification only (not needed by test.py)
+-r requirements.txt
+pytest==8.3.5
+# optional cross-check of our own AUROC/AP implementation in tests (skipped if absent)
+# scikit-learn

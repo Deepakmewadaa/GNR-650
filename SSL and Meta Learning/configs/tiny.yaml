@@ -1,0 +1,40 @@
+# "tiny" preset: CPU smoke tests on synthetic data ONLY (never for the real run).
+inherit: base
+time_budget_hours: 0.05
+data:
+  max_image_size: 32
+  cache_workers: 2
+  calib_holdout: 80
+model:
+  width: 8
+  embed_dim: 32
+ssl:
+  epochs: 2
+  batch_size: 32
+  warmup_epochs: 1
+  eval_every: 1
+  min_batch_size: 8
+simclr:
+  proj_hidden: 64
+  proj_dim: 32
+dino:
+  out_dim: 128
+  hidden: 64
+  bottleneck: 32
+  n_local: 2
+probe:
+  seeds: [0, 1, 2]
+  n_aug_views: 2
+  epochs: 20
+  cleaning_epochs: 10
+  cleaning_folds: 3
+  wd_grid: [1.0e-3, 1.0e-2]
+baseline:
+  seeds: [0, 1]
+  epochs: 2
+  batch_size: 32
+  warmup_epochs: 1
+ood:
+  n_folds: 2
+  bg_k: 3
+  calib_folds: 3

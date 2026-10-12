@@ -1,0 +1,15 @@
+# Pinned runtime dependencies (no model zoos, no SSL/OOD libraries).
+# setup.bash installs torch FIRST from the CUDA-matched PyTorch index (cu130 for CUDA 13.x drivers),
+# then this file; "torch==2.12.1" is satisfied by "2.12.1+cu130" (PEP 440 local version).
+# Wheels verified: torch 2.12.1 (cp310-cp314, manylinux_2_28 x86_64, cu130 index),
+# numpy/pillow/matplotlib pins below have wheels for the listed Python versions.
+torch==2.12.1; python_version >= "3.10"
+torch==2.8.0; python_version < "3.10"
+numpy==2.3.4; python_version >= "3.11"
+numpy==2.2.6; python_version == "3.10"
+numpy==2.0.2; python_version < "3.10"
+pillow==11.3.0
+pyyaml==6.0.3
+# plots only (training side); test.py does not need it
+matplotlib==3.10.7; python_version >= "3.10"
+matplotlib==3.9.4; python_version < "3.10"

@@ -1,0 +1,147 @@
+# Default preset ("base"): ResNet-18 (w=64, 512-d), 128px, SimCLR. Rationale in docs/decisions.md.
+time_budget_hours: 6.0          # whole pipeline; SSL gets ssl.budget_fraction of it
+seed: 0
+
+data:
+  root: null                    # auto-discovered (./data, ./dataset, $GNR650_DATA) unless given
+  labelled_dir: null
+  unlabelled_dir: null
+  image_size: auto              # auto = native (median shorter side) capped at max_image_size
+  max_image_size: 128
+  channels: auto                # auto = 1 if every scanned image is greyscale else 3
+  cache_workers: 16
+  max_unlabelled: null          # subsample for smoke tests only
+  max_labelled_per_class: null
+  monitor_val_frac: 0.2         # labelled hold-out used for kNN / quick-probe monitoring (noisy labels!)
+  # The encoder must not have seen the images we calibrate on, because test images are unseen:
+  exclude_labelled_from_ssl: true   # labelled images are byte-copies inside the unlabelled folder -> drop from SSL
+  calib_holdout: 2500               # unlabelled images held out of SSL (OOD background bank + mixture estimate)
+  calib_holdout_max_frac: 0.2
+  calib_holdout_seed: 12345
+
+model:
+  arch: resnet18
+  width: 64
+  embed_dim: 512
+  layers: [2, 2, 2, 2]
+  stem: auto                    # auto: small if image_size <= 64 else standard; also 'medium' (3x3 s1 + maxpool)
+
+ssl:
+  method: simclr                # simclr | dino
+  epochs: auto                  # auto = as many as fit in budget (measured after epoch 1), clipped below
+  default_epochs: 200           # used if 'auto' cannot measure (e.g. epochs set to auto on CPU)
+  min_epochs: 20
+  max_epochs: 800
+  budget_fraction: 0.8         # SSL dominates accuracy; probe/OOD/export take minutes
+  batch_size: 512
+  optimizer: lars               # lars | sgd | adamw
+  lr: 0.3                       # base LR per 256 images (scaled linearly with batch size)
+  weight_decay: 1.0e-6
+  momentum: 0.9
+  warmup_epochs: 10
+  final_lr_frac: 0.0
+  amp: auto                     # auto -> bf16 if supported else fp16 (CUDA only)
+  grad_clip: 3.0
+  channels_last: true
+  eval_every: 10                # epochs between kNN / quick-probe / collapse checks
+  knn_k: 20
+  knn_T: 0.07
+  save_every: 1                 # epochs between resume checkpoints
+  data_on_gpu: auto             # keep the uint8 cache on the GPU if it fits in 25% of memory
+  compile: auto                 # torch.compile the encoder on CUDA (falls back to eager on any error)
+  timing_epoch: 2               # epochs=auto is decided from this epoch's duration (epoch 1 has warm-up costs)
+  min_batch_size: 64            # OOM back-off floor
+
+simclr:
+  temperature: 0.2
+  proj_hidden: 2048
+  proj_dim: 128
+  proj_layers: 2
+  view2_overrides: {}
+
+dino:
+  out_dim: 4096
+  hidden: 2048
+  bottleneck: 256
+  n_local: 6
+  global_scale: [0.25, 1.0]
+  local_scale: [0.05, 0.25]
+  student_temp: 0.1
+  teacher_temp_start: 0.04
+  teacher_temp: 0.07
+  teacher_temp_warmup_frac: 0.1
+  center_momentum: 0.9
+  momentum_teacher: 0.996
+  freeze_last_layer_frac: 0.01
+
+aug:                            # SimCLR-style strong augmentation (GPU, own implementation)
+  crop_scale: [0.08, 1.0]
+  crop_ratio: [0.75, 1.3333]
+  flip_p: 0.5
+  jitter_p: 0.8
+  brightness: 0.4
+  contrast: 0.4
+  saturation: 0.4
+  hue: 0.1
+  gray_p: 0.2
+  blur_p: 0.5
+  blur_sigma: [0.1, 2.0]
+  solarize_p: 0.0
+
+probe:
+  seeds: [0, 1, 2]
+  val_frac: 0.2
+  tta_flip: true
+  n_aug_views: 8                # augmented feature banks (mild crop+flip) for head training
+  epochs: 100
+  cleaning_epochs: 100
+  cleaning_folds: 5
+  batch_size: 256
+  lr: 1.0e-2
+  weight_decay: 1.0e-3          # replaced by the value picked from wd_grid (CE, seed 0, val split)
+  wd_grid: [1.0e-4, 1.0e-3, 1.0e-2, 5.0e-2]   # selected by mean val acc over all probe seeds (CE)
+  methods: [ce, ls, sce, gce, bootstrap, knn+ce, proto+ce, smallloss+ce, cl+ce, consensus+ce, consensus+gce]
+  loss_params: {ls_eps: 0.1, sce_alpha: 0.1, sce_beta: 1.0, sce_A: -4.0, gce_q: 0.7, boot_beta: 0.8}
+  cleaning: {knn_k: 10, min_keep_frac: 0.3, smallloss_min_keep: 0.5}
+  feature_batch_size: 256
+
+baseline:
+  seeds: [0, 1, 2]
+  losses: [ce, best]            # 'best' = loss of the selected probe method (if it differs from ce)
+  epochs: 200
+  batch_size: 128
+  optimizer: adamw
+  lr: 1.0e-3
+  weight_decay: 0.05
+  warmup_epochs: 10
+  grad_clip: 5.0
+  aug: mild                     # mild (same family as probe banks) | ssl (full SSL augmentation)
+  budget_fraction: 0.1          # of the total time budget, split across all baseline runs (hard cap)
+
+ood:
+  n_folds: 5
+  holdout_frac: 0.2
+  val_frac: 0.2
+  calib_folds: 5
+  percentiles: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12, 14, 16, 18, 20, 22, 25, 28, 30, 35, 40, 45, 50]
+  objective: balanced_acc       # LCO objective used to SELECT the score: balanced_acc | kplus1_acc
+  candidates: [msp, maxlogit, energy, knn, mahalanobis, cosine, knn_ratio, ensemble]
+  # threshold_mode: target = maximise the ESTIMATED (K+1)-accuracy on the unseen unlabelled calibration holdout
+  #   (known fraction estimated by mixture-proportion estimation); lco = balanced LCO percentile.
+  threshold_mode: target
+  target_percentiles: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12, 14, 16, 18, 20, 22, 25, 28, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80, 85, 90]
+  target_pi_quantiles: [0.7, 0.75, 0.8, 0.85, 0.9]   # known-score upper tail used to estimate the known fraction
+  max_label_noise_correction: 0.4                     # cap on eta in KA/(1-eta) (noisy labels underestimate KA)
+  knn_k: 5
+  bg_k: 5                       # neighbours in the unlabelled background bank (knn_ratio)
+  dup_sim: 0.9999               # background neighbours this similar are the SAME file (only if test overlaps pool)
+  pi_source: best_auroc         # known fraction of the pool from the best-LCO-AUROC score (or 'own' per score)
+  energy_T: 1.0
+  maha_shrinkage: 0.1
+  maha_normalize: true
+  ensemble_members: [knn, mahalanobis, energy, cosine, knn_ratio]   # unavailable members are skipped
+
+export:
+  max_size_mb: 100
+  encoder_dtype: float32        # float16 halves the size if ever needed
+  which_encoder: last           # last (end of cosine schedule) | best (by the small noisy kNN monitor)

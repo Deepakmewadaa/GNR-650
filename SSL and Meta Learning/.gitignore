@@ -1,0 +1,23 @@
+# --- data (never committed; only the provided dataset, kept locally)
+data/
+dataset/
+# --- generated / large
+cache/
+runs/
+logs/
+local_test/
+synthetic*/
+*.partial.npy
+# --- environments
+.venv/
+venv/
+.pydeps/
+# --- python / OS junk
+__pycache__/
+*.pyc
+.pytest_cache/
+.DS_Store
+# --- checkpoints: ONLY the final packaged model is committed
+checkpoints/*
+!checkpoints/final.pt
+!checkpoints/.gitkeep
