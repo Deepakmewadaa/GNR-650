@@ -1,0 +1,14 @@
+{% extends "!layout.html" %}
+
+{% block extrahead %}
+{{ super() }}
+<link rel="stylesheet" href="{{ pathto('_static/custom.css', 1) }}" type="text/css" />
+{% endblock %}
+
+{% block menu %}
+{{ super() }}
+<p class="caption"><span class="caption-text">Quick Links</span></p>
+<ul>
+<li><a href="https://github.com/nblauch/fovi">GitHub Repository</a></li>
+</ul>
+{% endblock %} 
