@@ -8,7 +8,7 @@ Implementation of a Vision Transformer (ViT) classifier built from scratch using
 
 ### 1. Clone the Repository
 ```bash
-git clone <your-repo-url>
+git clone https://github.com/Deepakmewadaa/GNR-650.git
 cd "ViT from scratch"
 ```
 
@@ -68,12 +68,12 @@ To evaluate a trained checkpoint on any test dataset and output all 6 mandatory 
 
 ### Linux / Mac / WSL
 ```bash
-bash run_test.sh --test-path "/path/to/dataset/test" --checkpoint checkpoints/best_model.npz
+bash run_test.sh --test-path "/path/to/dataset/test"
 ```
 
 ### Direct Python Evaluation
 ```bash
-python test.py --test-path "/path/to/dataset/test" --checkpoint checkpoints/best_model.npz
+python test.py --test-path "/path/to/dataset/test" 
 ```
 
 ---

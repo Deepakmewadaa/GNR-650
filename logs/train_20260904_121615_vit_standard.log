@@ -1,0 +1,97 @@
+=================================================================
+ Starting Experiment: vit_standard
+ Log File:           logs\train_20260904_121615_vit_standard.log
+=================================================================
+ Architecture: 8 blocks, 4 heads, d_model=128, d_ff=512
+ Tokenizer:    standard
+ Val Split:    20.0%
+ Data Scale:   100.0% (uniform sampling)
+ Epochs:       25, Batch Size: 32, LR: 0.001 (cosine decay)
+-----------------------------------------------------------------
+ Loading dataset from: C:\Users\deepa\Downloads\train\train (holding out 20.0% for validation)...
+ Train samples: 40000 (1250 batches/epoch)
+ Val samples:   10000
+-----------------------------------------------------------------
+ Trainable Parameters: 1,720,036
+ Theoretical MACs:     408,615,424 (408.62 M)
+ Theoretical FLOPs:    817,230,848 (817.23 M)
+-----------------------------------------------------------------
+
+Checkpoint successfully saved to: checkpoints\vit_standard_best.npz
+Epoch 01/25 Summary - Time: 970.00s - Train Loss: 4.2067 - Train Acc: 8.07% | Val Loss: 3.9756 - Val Acc: 12.22%
+
+Checkpoint successfully saved to: checkpoints\vit_standard_best.npz
+Epoch 02/25 Summary - Time: 952.17s - Train Loss: 3.8833 - Train Acc: 14.06% | Val Loss: 3.8323 - Val Acc: 15.00%
+
+Checkpoint successfully saved to: checkpoints\vit_standard_best.npz
+Epoch 03/25 Summary - Time: 951.55s - Train Loss: 3.7199 - Train Acc: 17.64% | Val Loss: 3.6678 - Val Acc: 18.85%
+
+Checkpoint successfully saved to: checkpoints\vit_standard_best.npz
+Epoch 04/25 Summary - Time: 951.37s - Train Loss: 3.5829 - Train Acc: 20.20% | Val Loss: 3.5417 - Val Acc: 21.67%
+
+Checkpoint successfully saved to: checkpoints\vit_standard_best.npz
+Epoch 05/25 Summary - Time: 952.36s - Train Loss: 3.4735 - Train Acc: 22.71% | Val Loss: 3.4244 - Val Acc: 23.98%
+
+Checkpoint successfully saved to: checkpoints\vit_standard_best.npz
+Epoch 06/25 Summary - Time: 952.88s - Train Loss: 3.3760 - Train Acc: 24.97% | Val Loss: 3.4002 - Val Acc: 24.57%
+
+Checkpoint successfully saved to: checkpoints\vit_standard_best.npz
+Epoch 07/25 Summary - Time: 957.33s - Train Loss: 3.2872 - Train Acc: 26.80% | Val Loss: 3.3958 - Val Acc: 25.02%
+
+Checkpoint successfully saved to: checkpoints\vit_standard_best.npz
+Epoch 08/25 Summary - Time: 959.11s - Train Loss: 3.2008 - Train Acc: 28.84% | Val Loss: 3.2060 - Val Acc: 29.57%
+
+Checkpoint successfully saved to: checkpoints\vit_standard_best.npz
+Epoch 09/25 Summary - Time: 959.87s - Train Loss: 3.1149 - Train Acc: 31.00% | Val Loss: 3.1537 - Val Acc: 30.74%
+
+Checkpoint successfully saved to: checkpoints\vit_standard_best.npz
+Epoch 10/25 Summary - Time: 960.64s - Train Loss: 3.0335 - Train Acc: 32.61% | Val Loss: 3.1150 - Val Acc: 31.52%
+
+Checkpoint successfully saved to: checkpoints\vit_standard_best.npz
+Epoch 11/25 Summary - Time: 962.18s - Train Loss: 2.9556 - Train Acc: 34.55% | Val Loss: 3.0983 - Val Acc: 31.76%
+
+Checkpoint successfully saved to: checkpoints\vit_standard_best.npz
+Epoch 12/25 Summary - Time: 958.95s - Train Loss: 2.8862 - Train Acc: 36.48% | Val Loss: 3.0170 - Val Acc: 33.77%
+
+Checkpoint successfully saved to: checkpoints\vit_standard_best.npz
+Epoch 13/25 Summary - Time: 958.31s - Train Loss: 2.8113 - Train Acc: 38.30% | Val Loss: 2.9699 - Val Acc: 35.61%
+
+Checkpoint successfully saved to: checkpoints\vit_standard_best.npz
+Epoch 14/25 Summary - Time: 958.39s - Train Loss: 2.7534 - Train Acc: 40.13% | Val Loss: 2.9362 - Val Acc: 36.50%
+
+Checkpoint successfully saved to: checkpoints\vit_standard_best.npz
+Epoch 15/25 Summary - Time: 958.72s - Train Loss: 2.6848 - Train Acc: 41.90% | Val Loss: 2.9089 - Val Acc: 36.92%
+
+Checkpoint successfully saved to: checkpoints\vit_standard_best.npz
+Epoch 16/25 Summary - Time: 958.53s - Train Loss: 2.6282 - Train Acc: 43.56% | Val Loss: 2.8698 - Val Acc: 38.31%
+
+Checkpoint successfully saved to: checkpoints\vit_standard_best.npz
+Epoch 17/25 Summary - Time: 957.47s - Train Loss: 2.5660 - Train Acc: 45.10% | Val Loss: 2.8510 - Val Acc: 38.87%
+
+Checkpoint successfully saved to: checkpoints\vit_standard_best.npz
+Epoch 18/25 Summary - Time: 956.41s - Train Loss: 2.5208 - Train Acc: 46.24% | Val Loss: 2.8461 - Val Acc: 38.92%
+
+Checkpoint successfully saved to: checkpoints\vit_standard_best.npz
+Epoch 19/25 Summary - Time: 955.98s - Train Loss: 2.4693 - Train Acc: 47.85% | Val Loss: 2.8372 - Val Acc: 39.25%
+
+Epoch 20/25 Summary - Time: 956.56s - Train Loss: 2.4323 - Train Acc: 49.05% | Val Loss: 2.8508 - Val Acc: 39.14%
+
+Checkpoint successfully saved to: checkpoints\vit_standard_best.npz
+Epoch 21/25 Summary - Time: 957.42s - Train Loss: 2.4039 - Train Acc: 49.90% | Val Loss: 2.8379 - Val Acc: 39.37%
+
+Checkpoint successfully saved to: checkpoints\vit_standard_best.npz
+Epoch 22/25 Summary - Time: 956.94s - Train Loss: 2.3792 - Train Acc: 50.54% | Val Loss: 2.8273 - Val Acc: 40.01%
+
+Epoch 23/25 Summary - Time: 957.57s - Train Loss: 2.3592 - Train Acc: 50.95% | Val Loss: 2.8298 - Val Acc: 39.77%
+
+Checkpoint successfully saved to: checkpoints\vit_standard_best.npz
+Epoch 24/25 Summary - Time: 957.90s - Train Loss: 2.3438 - Train Acc: 51.68% | Val Loss: 2.8194 - Val Acc: 40.24%
+
+Epoch 25/25 Summary - Time: 954.89s - Train Loss: 2.3390 - Train Acc: 51.57% | Val Loss: 2.8194 - Val Acc: 40.14%
+
+=================================================================
+ TRAINING COMPLETE!
+ Total Training Time: 25959.29 seconds (432.65 minutes)
+ Checkpoint saved to: checkpoints\vit_standard_best.npz
+ Experiment logs:     checkpoints\vit_standard_log.json
+=================================================================
