@@ -5,18 +5,29 @@ test-time inference, so preprocessing and optional flip-TTA are identical everyw
 """
 import numpy as np
 import torch
+import torch.nn.functional as F
 
 from ssl_methods.augment import GPUAugment, normalize_uint8
 from utils.device import autocast
 
 
 @torch.no_grad()
-def encode_uint8(encoder, x_uint8, mean, std, tta_flip=True, amp=None, device=None):
-    """x_uint8: (B,C,S,S) uint8 tensor on `device`. Returns float32 (B, d)."""
+def encode_uint8(encoder, x_uint8, mean, std, tta_flip=True, amp=None, device=None, tta_multiscale=False):
+    """x_uint8: (B,C,S,S) uint8 tensor on `device`. Returns float32 (B, d).
+    If tta_multiscale=True, averages 4 views: clean, flip, 5% zoom crop, and zoom crop flip.
+    """
     x = normalize_uint8(x_uint8, mean, std)
     with autocast(x.device, amp):
         f = encoder(x).float()
-        if tta_flip:
+        if tta_multiscale:
+            S = x.shape[-1]
+            p = max(2, int(round(S * 0.05)))
+            x_crop = F.interpolate(x[:, :, p:S-p, p:S-p], size=(S, S), mode="bilinear", align_corners=False)
+            f_flip = encoder(torch.flip(x, dims=[3])).float()
+            f_crop = encoder(x_crop).float()
+            f_crop_flip = encoder(torch.flip(x_crop, dims=[3])).float()
+            f = 0.25 * (f + f_flip + f_crop + f_crop_flip)
+        elif tta_flip:
             f = 0.5 * (f + encoder(torch.flip(x, dims=[3])).float())
     return f
 
@@ -63,7 +74,8 @@ def load_or_extract_banks(cfg, out, encoder, enc_ck, data, device, amp=None):
     from ssl_methods.augment import MILD_AUG
     pc = cfg["probe"]
     nv, tta = int(pc.get("n_aug_views", 8)), bool(pc.get("tta_flip", True))
-    path = os.path.join(out["probe"], f"banks_{enc_ck['hash']}_v{nv}_tta{int(tta)}_n{len(data.labels)}.pt")
+    n_labels = len(data.labels) if data.labels is not None else 0
+    path = os.path.join(out["probe"], f"banks_{enc_ck['hash']}_v{nv}_tta{int(tta)}_n{n_labels}.pt")
     if os.path.isfile(path):
         b = load_ckpt(path)
         if b.get("paths") == list(data.lab_paths):
