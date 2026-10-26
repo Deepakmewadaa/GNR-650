@@ -55,6 +55,12 @@ def gpu_info():
 
 def setup_backends():
     if torch.cuda.is_available():
-        torch.backends.cudnn.benchmark = True
+        import os
+        p = torch.cuda.get_device_properties(0)
+        # Avoid cuDNN benchmark crash on Blackwell (sm_120, capability >= 12.0) and Hopper (sm_90)
+        if p.major >= 9 or os.environ.get("CUDNN_BENCHMARK", "").lower() in ("0", "false"):
+            torch.backends.cudnn.benchmark = False
+        else:
+            torch.backends.cudnn.benchmark = True
         torch.backends.cuda.matmul.allow_tf32 = True
         torch.backends.cudnn.allow_tf32 = True
