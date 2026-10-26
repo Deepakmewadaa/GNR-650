@@ -45,4 +45,22 @@ def build_ssl_method(cfg, encoder, meta):
     if name == "dino":
         from ssl_methods.dino import DINO
         return DINO(encoder, cfg, meta)
-    raise ValueError(f"unknown SSL method '{name}' (choose simclr|dino)")
+    if name in ("barlow", "barlow_twins", "bt"):
+        from ssl_methods.barlow_twins import BarlowTwins
+        return BarlowTwins(encoder, cfg, meta)
+    if name in ("byol",):
+        from ssl_methods.byol import BYOL
+        return BYOL(encoder, cfg, meta)
+    if name in ("looc_byol", "loocbyol"):
+        from ssl_methods.looc_byol import LooCBYOL
+        return LooCBYOL(encoder, cfg, meta)
+    if name in ("swav",):
+        from ssl_methods.swav import SwAV
+        return SwAV(encoder, cfg, meta)
+    if name in ("looc_swav", "loocswav", "looc"):
+        from ssl_methods.looc_swav import LooCSwAV
+        return LooCSwAV(encoder, cfg, meta)
+    if name in ("vicreg", "vic"):
+        from ssl_methods.vicreg import VICReg
+        return VICReg(encoder, cfg, meta)
+    raise ValueError(f"unknown SSL method '{name}' (choose simclr|dino|byol|barlow_twins|swav|vicreg)")

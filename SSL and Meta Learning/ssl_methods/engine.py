@@ -13,6 +13,23 @@ from ssl_methods.base import build_ssl_method
 from utils.diagnostics import collapse_stats
 from utils.device import autocast
 
+try:
+    import ssl_methods.byol  # noqa: F401
+except ImportError:
+    pass
+try:
+    import ssl_methods.swav  # noqa: F401
+except ImportError:
+    pass
+try:
+    import ssl_methods.looc_swav  # noqa: F401
+except ImportError:
+    pass
+try:
+    import ssl_methods.looc_byol  # noqa: F401
+except ImportError:
+    pass
+
 
 def make_method(cfg, meta, device):
     model_cfg = resolve_model_cfg(cfg["model"], meta["image_size"], meta["channels"])
