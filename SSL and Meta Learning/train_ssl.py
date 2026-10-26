@@ -99,8 +99,13 @@ def main():
             pass
     sample = make_sampler(U, device)
     N = U.shape[0]
-    lab_np = np.ascontiguousarray(np.asarray(data.lab))
-    split = stratified_split(data.labels, cfg["data"].get("monitor_val_frac", 0.2), seed=0)
+    _HAS_LABELS = meta["n_labelled"] > 0
+    if not _HAS_LABELS:
+        print("[ssl] WARNING: no labelled images – kNN / probe monitoring disabled for this run.")
+    lab_np = np.ascontiguousarray(np.asarray(data.lab)) if _HAS_LABELS else np.empty((0,), dtype=np.uint8)
+    split = (stratified_split(data.labels, cfg["data"].get("monitor_val_frac", 0.2), seed=0)
+             if _HAS_LABELS
+             else (np.array([], dtype=np.int64), np.array([], dtype=np.int64)))
 
     # ---------------- resume or fresh start
     last_path = os.path.join(out["ssl"], "last.pt")
@@ -140,10 +145,11 @@ def main():
         if state.get("scaler"):
             scaler.load_state_dict(state["scaler"])
         start_epoch, total_epochs = int(state["epoch"]), state["total_epochs"]
-        if args.epochs not in (None, "auto") and int(args.epochs) != total_epochs:
-            print(f"[ssl] WARNING: changing total epochs on resume {total_epochs} -> {args.epochs} "
+        target_epochs = args.epochs if args.epochs not in (None, "auto") else sc.get("epochs")
+        if target_epochs not in (None, "auto") and int(target_epochs) != total_epochs:
+            print(f"[ssl] WARNING: changing total epochs on resume {total_epochs} -> {target_epochs} "
                   f"(cosine schedule is stretched from here on)")
-            total_epochs = int(args.epochs)
+            total_epochs = int(target_epochs)
         best, baseline = state["best"], state["baseline"]
         elapsed_prev, history = float(state.get("elapsed", 0.0)), state.get("history", [])
         eval_cost = float(state.get("eval_cost", 0.0))
@@ -151,10 +157,16 @@ def main():
     else:
         start_epoch, elapsed_prev, history = 0, 0.0, []
         print("[ssl] evaluating RANDOM-INIT encoder (reference baseline)...")
-        baseline = monitor_eval(method.eval_encoder(), lab_np, data.labels, split, meta, cfg, device, amp)
+        _stub = {"knn_acc": 0.0, "probe_acc": 0.0, "eff_rank": 0.0,
+                 "feat_std": 0.0, "feat_std_ref": 0.0, "eval_time_s": 0.0}
+        baseline = (monitor_eval(method.eval_encoder(), lab_np, data.labels, split, meta, cfg, device, amp)
+                    if _HAS_LABELS else _stub)
         eval_cost = baseline["eval_time_s"]
-        print(f"[ssl] random-init: kNN {baseline['knn_acc']:.4f}  probe {baseline.get('probe_acc', float('nan')):.4f} "
-              f" eff_rank {baseline['eff_rank']:.1f}")
+        if _HAS_LABELS:
+            print(f"[ssl] random-init: kNN {baseline['knn_acc']:.4f}  probe {baseline.get('probe_acc', float('nan')):.4f} "
+                  f" eff_rank {baseline['eff_rank']:.1f}")
+        else:
+            print("[ssl] random-init: monitoring skipped (no labelled images)")
         best = {"knn_acc": -1.0, "epoch": 0}
         ep_cfg = sc.get("epochs", "auto")
         total_epochs = None if ep_cfg in (None, "auto") else int(ep_cfg)
@@ -226,15 +238,16 @@ def main():
                       f"Consider the 'small' preset.")
 
         if epoch % int(sc.get("eval_every", 10)) == 0 or epoch == total_epochs:
-            mon = monitor_eval(method.eval_encoder(), lab_np, data.labels, split, meta, cfg, device, amp)
-            eval_cost = mon["eval_time_s"]
-            row.update({k: round(v, 5) if isinstance(v, float) else v for k, v in mon.items()})
-            for w in collapse_warning(mon):
-                print(f"[ssl] COLLAPSE WARNING: {w}")
-            if mon["knn_acc"] >= best["knn_acc"]:
-                best = {"knn_acc": mon["knn_acc"], "epoch": epoch, "probe_acc": mon.get("probe_acc")}
-                save_atomic(encoder_ckpt(method, model_cfg, meta, cfg, epoch, mon),
-                            os.path.join(out["ssl"], "encoder_best.pt"))
+            if _HAS_LABELS:
+                mon = monitor_eval(method.eval_encoder(), lab_np, data.labels, split, meta, cfg, device, amp)
+                eval_cost = mon["eval_time_s"]
+                row.update({k: round(v, 5) if isinstance(v, float) else v for k, v in mon.items()})
+                for w in collapse_warning(mon):
+                    print(f"[ssl] COLLAPSE WARNING: {w}")
+                if mon["knn_acc"] >= best["knn_acc"]:
+                    best = {"knn_acc": mon["knn_acc"], "epoch": epoch, "probe_acc": mon.get("probe_acc")}
+                    save_atomic(encoder_ckpt(method, model_cfg, meta, cfg, epoch, mon),
+                                os.path.join(out["ssl"], "encoder_best.pt"))
         elapsed = elapsed_prev + (time.time() - t_run)
         t_run, elapsed_prev = time.time(), elapsed
         te = total_epochs or cur_total          # total not decided yet during the timing epochs
@@ -261,17 +274,22 @@ def main():
             break
 
     # ---------------- wrap-up
-    final = monitor_eval(method.eval_encoder(), lab_np, data.labels, split, meta, cfg, device, amp)
+    _stub = {"knn_acc": 0.0, "probe_acc": 0.0, "eff_rank": 0.0,
+             "feat_std": 0.0, "feat_std_ref": 0.0, "eval_time_s": 0.0}
+    final = (monitor_eval(method.eval_encoder(), lab_np, data.labels, split, meta, cfg, device, amp)
+             if _HAS_LABELS else _stub)
     save_atomic(encoder_ckpt(method, model_cfg, meta, cfg, epoch, final), os.path.join(out["ssl"], "encoder_last.pt"))
-    if not os.path.isfile(os.path.join(out["ssl"], "encoder_best.pt")) or final["knn_acc"] >= best["knn_acc"]:
+    if not os.path.isfile(os.path.join(out["ssl"], "encoder_best.pt")) or (
+            _HAS_LABELS and final["knn_acc"] >= best["knn_acc"]):
         best = {"knn_acc": final["knn_acc"], "epoch": epoch, "probe_acc": final.get("probe_acc")}
         save_atomic(encoder_ckpt(method, model_cfg, meta, cfg, epoch, final), os.path.join(out["ssl"], "encoder_best.pt"))
     warnings = []
-    margin = max(0.03, 0.25 * baseline["knn_acc"])
-    if final["knn_acc"] < baseline["knn_acc"] + margin:
-        warnings.append(f"kNN accuracy {final['knn_acc']:.4f} is NOT clearly above the random-init baseline "
-                        f"{baseline['knn_acc']:.4f} (needed +{margin:.3f}). SSL may have failed.")
-    warnings += [f"collapse: {w}" for w in collapse_warning(final)]
+    if _HAS_LABELS:
+        margin = max(0.03, 0.25 * baseline["knn_acc"])
+        if final["knn_acc"] < baseline["knn_acc"] + margin:
+            warnings.append(f"kNN accuracy {final['knn_acc']:.4f} is NOT clearly above the random-init baseline "
+                            f"{baseline['knn_acc']:.4f} (needed +{margin:.3f}). SSL may have failed.")
+    warnings += [f"collapse: {w}" for w in (collapse_warning(final) if _HAS_LABELS else [])]
     summary = {"method": sc["method"], "epochs_done": epoch, "epochs_planned": total_epochs, "batch_size": bs,
                "base_lr": base_lr, "random_init": baseline, "final": final, "best": best,
                "model_cfg": model_cfg, "encoder_params": n_params, "data_meta": meta_for_ckpt(meta),
