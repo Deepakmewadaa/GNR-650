@@ -26,6 +26,7 @@ class FinalModel(nn.Module):
         self.channels = int(ck["channels"])
         self.mean, self.std = list(ck["mean"]), list(ck["std"])
         self.tta_flip = bool(ck.get("tta_flip", True))
+        self.tta_multiscale = bool(ck.get("tta_multiscale", False))
         self.encoder = build_encoder(ck["model_cfg"])
         self.encoder.load_state_dict({k: v.float() for k, v in ck["encoder"].items()})
         W, b = ck["head"]["weight"].float(), ck["head"]["bias"].float()
@@ -50,7 +51,7 @@ class FinalModel(nn.Module):
     @torch.no_grad()
     def predict(self, x_uint8, amp=None):
         """x_uint8: (B,C,S,S) uint8 on the model device. Returns (labels in 0..K, ood score, closed-set pred)."""
-        f = encode_uint8(self.encoder, x_uint8, self.mean, self.std, self.tta_flip, amp)
+        f = encode_uint8(self.encoder, x_uint8, self.mean, self.std, self.tta_flip, amp, tta_multiscale=self.tta_multiscale)
         logits = self.head(f)
         closed = logits.argmax(1)
         s = self.scorer.score(self.score_name, f, logits)
