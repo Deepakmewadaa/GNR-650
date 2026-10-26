@@ -70,6 +70,12 @@ def main():
     meta = ck["data_meta"]
     print(f"[probe] encoder {enc_path} (epoch {ck.get('epoch')}, hash {ck['hash']})")
     data = load_data(cfg, out, need_unlabelled=False, need_labelled=True, force_meta=meta)
+    if meta["n_labelled"] == 0 or data.labels is None:
+        raise SystemExit(
+            "ERROR: no labelled images found in dataset/labelled_data/.\n"
+            "Upload your labelled data to the server first, then re-run:\n"
+            "  bash run_all.sh --config base --budget 95 --only probe,baseline,ood,export,eval,report"
+        )
     if data.class_names != meta["class_names"]:
         raise SystemExit("ERROR: labelled class folders differ from those seen during SSL training")
     K = len(data.class_names)

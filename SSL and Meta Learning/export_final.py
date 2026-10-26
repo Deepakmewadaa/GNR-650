@@ -63,6 +63,7 @@ def build_final(cfg, out):
         "image_size": int(meta["image_size"]), "channels": int(meta["channels"]),
         "mean": [float(x) for x in meta["mean"]], "std": [float(x) for x in meta["std"]],
         "tta_flip": bool(cfg["probe"].get("tta_flip", True)),
+        "tta_multiscale": bool(cfg["probe"].get("tta_multiscale", False)),
         "model_cfg": enc["model_cfg"],
         "encoder": enc_sd,
         "head": {"weight": o["head"]["weight"].float().contiguous(), "bias": o["head"]["bias"].float().contiguous()},
@@ -150,7 +151,7 @@ def self_test(final_path, model, data_dirs):
             w.writerows(rows)
         outdir = os.path.join(tmp, "out_not_yet_created")
         cmd = [sys.executable, os.path.join(REPO_ROOT, "test.py"), "--test-csv", tcsv, "--output-path", outdir,
-               "--checkpoint", final_path]
+               "--checkpoint", final_path, "--device", "cpu", "--no-amp"]
         r = subprocess.run(cmd, capture_output=True, text=True, cwd=tmp, env={**os.environ, "GNR650_NO_REEXEC": "1"})
         print(r.stdout[-2000:])
         if r.returncode != 0:
