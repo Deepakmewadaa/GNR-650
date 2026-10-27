@@ -148,7 +148,7 @@ class OODScorer:
             return s_lab - s_bg
         if name == "ensemble":
             if "ens_stats" not in self.st:
-                raise RuntimeError("ensemble requires set_calibration() first")
+                return self.score("energy", feats, logits, bg_self)
             ms = list(self.st["ens_stats"])
             tot = 0
             for m in ms:
@@ -178,8 +178,8 @@ class OODScorer:
 
     @classmethod
     def from_state_dict(cls, sd):
-        o = cls(sd["params"])
-        o.st = dict(sd["stats"])
+        o = cls(sd.get("params", {}))
+        o.st = dict(sd.get("stats", sd.get("st", {})))
         if "ens_stats" in o.st:
             o.st["ens_stats"] = {m: (float(v[0]), float(v[1])) for m, v in o.st["ens_stats"].items()}
         return o
