@@ -4,29 +4,26 @@ set -e
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$ROOT"
 
-# Define the custom environment name variable
 ENV_NAME="gnr_assignment_env"
 
 echo "============================================================"
-echo " Setting up environment for GNR650 Assignment 2 (SSL)"
+echo " Setting up Conda environment for GNR650 Assignment 2 (SSL)"
 echo "============================================================"
 
-# 1. Create virtual environment using the custom name if missing
-if [ ! -d "$ENV_NAME" ]; then
-    echo "[INFO] Creating virtual environment at $ENV_NAME..."
-    if command -v uv &> /dev/null; then
-        uv venv "$ENV_NAME"
-    else
-        python3 -m venv "$ENV_NAME" || python -m venv "$ENV_NAME"
-    fi
+# 1. Force create/update Conda environment with Python 3.11
+if ! conda env list | grep -q "$ENV_NAME"; then
+    echo "[INFO] Creating Conda environment '$ENV_NAME' with Python 3.11..."
+    conda create -n "$ENV_NAME" python=3.11 -y
+else
+    echo "[INFO] Conda environment '$ENV_NAME' already exists."
 fi
 
-# 2. Locate virtualenv Python interpreter
-VPY="$ENV_NAME/bin/python"
-[ -f "$ENV_NAME/Scripts/python.exe" ] && VPY="$ENV_NAME/Scripts/python.exe"
+# 2. Locate the precise Python interpreter inside the Conda environment
+CONDA_ENV_PATH=$(conda env list | grep -E "^${ENV_NAME}[[:space:]]" | awk '{print $NF}')
+VPY="$CONDA_ENV_PATH/bin/python"
 
 if [ ! -f "$VPY" ]; then
-    echo "[ERROR] Python interpreter not found in $ENV_NAME!" >&2
+    echo "[ERROR] Conda Python interpreter not found at $VPY!" >&2
     exit 1
 fi
 
@@ -37,12 +34,12 @@ if command -v nvidia-smi &> /dev/null; then
     INDEX_ARGS=(--extra-index-url "https://download.pytorch.org/whl/cu130" --extra-index-url "https://download.pytorch.org/whl/cu126")
 fi
 
-# 4. Install dependencies into the custom environment
+# 4. Install dependencies directly into the targeted Conda Python binary path
 if command -v uv &> /dev/null; then
-    echo "[INFO] Using uv to install dependencies into $ENV_NAME..."
+    echo "[INFO] Using uv to install dependencies into Conda env..."
     uv pip install --python "$VPY" "${INDEX_ARGS[@]}" -r requirements.txt
 else
-    echo "[INFO] Upgrading pip and installing dependencies..."
+    echo "[INFO] Upgrading pip and installing dependencies via standard pip..."
     "$VPY" -m pip install --upgrade pip --quiet
     "$VPY" -m pip install "${INDEX_ARGS[@]}" -r requirements.txt || "$VPY" -m pip install torch numpy pillow pyyaml
 fi
@@ -50,14 +47,15 @@ fi
 # 5. Create required directories
 mkdir -p logs checkpoints
 
-# 6. Verify environment
+# 6. Verify environment inside the correct binary context
 echo "[INFO] Verifying environment..."
 "$VPY" -c "
 import torch, numpy, PIL, yaml
 print(f'[OK] PyTorch {torch.__version__} | CUDA available: {torch.cuda.is_available()}')
+print(f'[OK] NumPy version: {numpy.__version__}')
 if torch.cuda.is_available():
     print(f'[OK] GPU: {torch.cuda.get_device_name(0)}')
 "
 echo "============================================================"
-echo " Setup completed successfully. (venv: $ENV_NAME)"
+echo " Setup completed successfully. Your environment is ready!"
 echo "============================================================"
