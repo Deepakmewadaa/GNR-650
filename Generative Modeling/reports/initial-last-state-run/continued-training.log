@@ -1,0 +1,6 @@
+{"device": "mps", "generator": 1756259, "text_encoder": 91264, "deployed_total": 1847523, "discriminator": 1279705, "training_total": 3127228}
+{"step": 600, "loss_g": 4.6101555824279785, "loss_d": 6.807573318481445, "elapsed_seconds": 21.519367707995116}
+{"step": 700, "loss_g": 4.636907577514648, "loss_d": 6.799659729003906, "elapsed_seconds": 43.504713249989436}
+{"step": 800, "loss_g": 4.580820560455322, "loss_d": 6.791108131408691, "elapsed_seconds": 71.91526608300046}
+{"step": 900, "loss_g": 4.55836296081543, "loss_d": 6.796957969665527, "elapsed_seconds": 105.25349954099511}
+{"step": 1000, "loss_g": 4.554520606994629, "loss_d": 6.78162956237793, "elapsed_seconds": 163.90152812498854}

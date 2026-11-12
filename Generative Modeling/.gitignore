@@ -1,0 +1,193 @@
+# ==============================================================================
+# .gitignore for GNR650 Assignment 3 (Text-to-Image Generative Modeling)
+# Team Collaboration Setup (3 members across macOS, Linux, and Windows)
+# ==============================================================================
+
+# ------------------------------------------------------------------------------
+# 1. Virtual Environments & Local Interpreters
+# ------------------------------------------------------------------------------
+# Virtual environments contain platform-specific binaries and absolute paths.
+# Each team member must create their local .venv (via setup.bash or setup.ps1).
+.venv/
+venv/
+env/
+ENV/
+.env/
+env.bak/
+venv.bak/
+
+# ------------------------------------------------------------------------------
+# 2. Python Caches, Bytecode & Build Artifacts
+# ------------------------------------------------------------------------------
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# ------------------------------------------------------------------------------
+# 3. Testing, Coverage & Type Checking
+# ------------------------------------------------------------------------------
+.pytest_cache/
+.coverage
+.coverage.*
+nosetests.xml
+coverage.xml
+htmlcov/
+.hypothesis/
+.tox/
+.nox/
+.mypy_cache/
+.pytype/
+.ruff_cache/
+.cache/
+
+# ------------------------------------------------------------------------------
+# 4. Operating System Noise (macOS / Windows / Linux)
+# ------------------------------------------------------------------------------
+# macOS (Finder metadata, resource forks, spotlight, trash)
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+
+# Windows (thumbnails, desktop settings, shortcuts, recycle bin)
+Thumbs.db
+ehthumbs.db
+ehthumbs_vista.db
+Desktop.ini
+$RECYCLE.BIN/
+*.lnk
+
+# Linux
+*~
+.fuse_hidden*
+.directory
+
+# ------------------------------------------------------------------------------
+# 5. IDEs, Editors & Notebook Checkpoints
+# ------------------------------------------------------------------------------
+# Visual Studio Code (personal settings, local tasks)
+.vscode/
+
+# JetBrains / PyCharm
+.idea/
+*.iml
+*.iws
+
+# Sublime Text
+*.sublime-project
+*.sublime-workspace
+
+# Editor swap and recovery files
+*.swp
+*.swo
+*~
+.#*
+\#*\#
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints/
+*-checkpoint.py
+
+# ------------------------------------------------------------------------------
+# 6. Datasets & Raw Archives (Enforcing GitHub Limits & AGENTS.md Rules)
+# ------------------------------------------------------------------------------
+# Stanford Dogs raw archive (~740MB) and raw downloads exceed GitHub's 100MB limit.
+data/raw/
+*.tar
+*.tar.gz
+*.tgz
+*.zip
+*.7z
+*.rar
+*.gz
+
+# Curated image corpus (>20,000 images, ~1GB+).
+# Manifest (manifest.jsonl) and summaries are kept; image files are curated locally.
+data/curated/images/
+
+# ------------------------------------------------------------------------------
+# 7. Model Checkpoints & Large Weights
+# ------------------------------------------------------------------------------
+# Intermediate training runs and checkpoints quickly blow past GitHub repo limits.
+# Ignore intermediate/experimental weights by default:
+checkpoints/*.pt
+checkpoints/*.ckpt
+checkpoints/*.pth
+checkpoints/*.safetensors
+checkpoints/*.bin
+checkpoints/*.onnx
+
+# Allow the official evaluation checkpoint required by setup.bash / test.py contract:
+!checkpoints/latest.pt
+
+# ------------------------------------------------------------------------------
+# 8. Generation Outputs, Runs & Temporary Files
+# ------------------------------------------------------------------------------
+# Generated evaluation images from test.py (--output-dir)
+outputs/
+generated/
+
+# Atomic checkpoint write temporary files
+*.tmp
+*.temp
+*.bak
+
+# Experiment trackers (if used)
+wandb/
+runs/
+
+# ------------------------------------------------------------------------------
+# 9. CVPR 2027 LaTeX Report Auxiliary Files (Assignment Section 1.1)
+# ------------------------------------------------------------------------------
+# Ignore LaTeX intermediate/auxiliary files from compiling the CVPR author kit,
+# while keeping source .tex, .bib, styles, and figures tracked.
+*.aux
+*.bbl
+*.blg
+*.fdb_latexmk
+*.fls
+*.out
+*.synctex.gz
+*.toc
+*.bcf
+*.run.xml
+*.idx
+*.ilg
+*.ind
+*.nav
+*.snm
+*.vrb
+*.pdfsync
+
+# Ignore general execution logs, but preserve project audit/evidence reports
+*.log
+!reports/*.log
+!reports/**/*.log
+
+# ------------------------------------------------------------------------------
+# 10. Local Environment Secrets
+# ------------------------------------------------------------------------------
+.env
+.env.local
+.env.*.local
+*.pem
+*.key

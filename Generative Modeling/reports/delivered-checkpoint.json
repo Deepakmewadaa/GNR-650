@@ -1,0 +1,9 @@
+{
+  "path": "checkpoints/latest.pt",
+  "step": 2510,
+  "sha256": "1ad6231efafb9f0276bd663619e77e128e5d66e58421ab77ac6c402b50878534",
+  "trained_from_scratch": true,
+  "external_training_weights": false,
+  "quality_status": "poor development outputs; not converged",
+  "target_cuda_verified": false
+}

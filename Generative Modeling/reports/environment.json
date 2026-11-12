@@ -1,0 +1,8 @@
+{
+  "os": "macOS-27.2.1-arm64-arm-64bit",
+  "machine": "arm64",
+  "python": "3.11.14",
+  "torch": "2.10.0",
+  "cuda": false,
+  "mps": true
+}

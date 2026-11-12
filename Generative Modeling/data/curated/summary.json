@@ -1,0 +1,18 @@
+{
+  "candidates": 20580,
+  "accepted": 20431,
+  "rejected": 149,
+  "splits": {
+    "train": 16345,
+    "test": 2043,
+    "validation": 2043
+  },
+  "breeds": 120,
+  "minimum_required": 10000,
+  "meets_minimum": true,
+  "archive_sha256": "572e8ab5097aac3f7cbf18fd7d40b752169ba188e89b12b5b9bf682157d52333",
+  "manifest_sha256": "6e2a66680ba301af83e3b49d1139ce86a587e14acb9fdae732932cd40bd2b429",
+  "seed": 650,
+  "phash_radius": 4,
+  "resolution": 64
+}

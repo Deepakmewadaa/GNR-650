@@ -1,0 +1,7 @@
+{
+  "generator": 1756259,
+  "text_encoder": 91264,
+  "deployed_total": 1847523,
+  "discriminator": 1279705,
+  "training_total": 3127228
+}
