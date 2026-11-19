@@ -1,3 +1,0 @@
-{"device": "mps", "generator": 1756259, "text_encoder": 91264, "deployed_total": 1847523, "discriminator": 1279705, "training_total": 3127228}
-{"step": 505, "loss_g": 4.575005054473877, "loss_d": 6.781546592712402, "elapsed_seconds": 2.067233916997793}
-{"step": 510, "loss_g": 4.581498146057129, "loss_d": 6.8024749755859375, "elapsed_seconds": 3.331664166995324}

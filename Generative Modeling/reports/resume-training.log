@@ -1,3 +1,0 @@
-{"device": "mps", "generator": 1756259, "text_encoder": 91264, "deployed_total": 1847523, "discriminator": 1279705, "training_total": 3127228}
-{"step": 2505, "loss_g": 4.790713310241699, "loss_d": 6.775750160217285, "discriminator_gap": -0.0005709528923034668, "real_breed_accuracy": 0.0, "fake_spatial_std": 0.5208122134208679, "elapsed_seconds": 2.2926590419956483}
-{"step": 2510, "loss_g": 4.815700054168701, "loss_d": 6.792575836181641, "discriminator_gap": -0.0007861852645874023, "real_breed_accuracy": 0.0, "fake_spatial_std": 0.4444065988063812, "elapsed_seconds": 3.42344158400374}
